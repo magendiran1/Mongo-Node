@@ -37,7 +37,12 @@
  //latest way to import 
  import express from 'express'
  import {MongoClient} from 'mongodb'
+ import { moviesRouter } from './routes/movies.js'
+ import { userRouter } from './routes/user.js'
+ import bcrypt from 'bcrypt'
+
  import dotenv from 'dotenv'
+// import { getMovies, createMovies, getMoviesById } from './getMovies.js'
  dotenv.config()
 
  console.log(process.env)
@@ -134,6 +139,13 @@ const movies =[
     }
   ];
 
+  // Now we are Going to refer the File movies.js  because then Only we can able to see
+  // Movies data why means now we have movie  get and Post method another files
+  // so Please follow the below Step
+
+  app.use('/movies', moviesRouter)
+  app.use('/users', userRouter)
+
   app.use(express.json()) // here this will help you whenever the request  we have provide the data in Json
   
   // mongodb+srv://magendiranmendy1995:<password>@cluster0.eexdx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
@@ -148,73 +160,15 @@ console.log("mongodb is Connected")
 return client
 }
 
-const client = await createConnection();
+export const client = await createConnection();
 
 //  const PORT =9000
 const PORT =process.env.PORT ;
 
-  app.get('/',(request,response)=>{
+  app.get('/signup',(request,response)=>{
 
     response.send("hello world 💕😍🤳😍")
  })
 
+ app.listen(PORT,()=>{console.log(`The server Started Successfully ${PORT}`)})
 
- app.get('/movies', async(request,response)=>{
-
-    // const {language,rating} =request.query
-
-    const filter =request.query
-    if(filter.rating){
-      filter.rating=+filter.rating
-    }
-
-
-   const movies = await client.db("b251we").collection("movies").find(filter).toArray();
-console.log(movies)
-   response.send(movies)
-  //  let filteredmovies =movies
-
-  //  if(language){
-  //   filteredmovies=filteredmovies.filter((mv)=>mv.language===language)
-
-  //  }
-  //  if(rating){
-  //   filteredmovies=filteredmovies.filter((mv)=>mv.rating=== +rating)
- 
-  //  }
-  
-  //  if(filteredmovies.length>0){
-  //  response.send(filteredmovies)
-  //  }
-  //  else {
-  //    response.send("No Movies list is Found for the Filter")
-  //  }
-   
- })
-
- app.post("/movies",
-//  express.json()
-//  , This we are not using now because this  
- async (request,response)=>{
-
-  const data =request.body;
- const result= await client
-  .db("b251we")
-  .collection("movies")
-  .insertMany(data)
-  
-  response.send(result)
- })
-
-app.get("/movies/:id", async (request,response)=>{
-
-    const {id}=request.params;
-    console.log(id)
-   const movie = await client.db("b251we").collection("movies").findOne({id:id})
-    // const [result] =movies.filter((mv)=>mv.id ===id)
-    console.log(movie)
-console.log(movie)
-movie ? response.send(movie) : response.status(404).send({msg:"No Movies Found"})
- })
-
- app.listen(PORT,()=>{console.log("The server Started Successfully")})
